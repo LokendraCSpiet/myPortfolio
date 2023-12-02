@@ -4,6 +4,9 @@ from portfoApp.models import pf_contact
 # from .models import *
 from django.contrib import messages
 
+from django.http import JsonResponse
+import json
+
 
 
 # Create your views here.
@@ -61,3 +64,71 @@ def submit_contact(request):
     return render(request,'home.html')
     # return HttpResponse("GET request, please submit the form.")
 
+""" 
+def datatable_view(request):
+    people = pf_contact.objects.all()
+    data = []
+
+    for person in people:
+        data.append({
+            'full_name': person.full_name,
+            'email': person.email,
+            'subject': person.subject,
+            'message': person.message,
+        })
+
+    return JsonResponse(data, safe=False)
+ """
+
+def datatable_view(request):
+    try:
+        people = pf_contact.objects.all()
+        data = []
+
+        for person in people:
+
+            if(person.status == 1):
+                status = "Checked"
+            elif(person.status == 2):
+                status = "Un-checked"
+            elif(person.status == 0):
+                status = "pending"
+
+            data.append({
+                'Id': person.id,
+                'full_name': person.full_name,
+                'email': person.email,
+                'subject': person.subject,
+                'message': person.message,
+                'status': status,
+            })
+
+        return JsonResponse({'data': data}, safe=False)
+    except Exception as e:
+        print(f"Error in datatable_view: {e}")
+        return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
+
+def checked_contact(request):
+    id = request.POST.get('id')
+    pfContact_instance = pf_contact.objects.get(id=id)
+    # mydata = pf_contact.objects.filter(id=id).values()
+    # print(mydata[0]['full_name'])
+    # print(my_model_instance.full_name)
+    pfContact_instance.status = 1
+    pfContact_instance.save()
+    result = {
+        'data':pfContact_instance.id,
+        'msg':"Contact Checked Successfully"
+        }
+    return JsonResponse(result)
+    # return JsonResponse({'id': model.id, 'name': model.name})
+
+def delete_contact(request):
+    id = request.POST.get('id')
+    pfContact_instance = pf_contact.objects.get(id=id)
+    pfContact_instance.delete()
+    result = {
+        'msg':"Contact Deleted Successfully"
+        }
+    return JsonResponse(result)

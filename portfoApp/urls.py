@@ -18,5 +18,8 @@ urlpatterns = [
     path('OnServices',views.online_Services, name= "onServices"),
     path('OnPortfolio',views.online_Portfolio, name= "onPortfolio"),
     
+    path('datatable', views.datatable_view, name='datatable'),
+    path('checkContact', views.checked_contact, name='checkContact'),
+    path('deleteContact', views.delete_contact, name='deleteContact'),
     
 ]

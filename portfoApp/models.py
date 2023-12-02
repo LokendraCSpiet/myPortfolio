@@ -7,3 +7,4 @@ class pf_contact(models.Model):
     email = models.CharField(max_length=60)
     subject = models.CharField(max_length=60)
     message = models.CharField(max_length=200)
+    status = models.IntegerField(max_length=1,default=0)

@@ -23,6 +23,14 @@
 	<link rel="stylesheet" href="{% static 'onlinePortfolio/vendors/nice-select/css/nice-select.css' %}">
 	<!-- main css -->
 	<link rel="stylesheet" href="{% static 'onlinePortfolio/css/style.css' %}">
+
+  <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+
 </head>
 <body>
     <!--================ Start About Us Area =================-->
@@ -75,6 +83,110 @@
         </div>
     </section>
     <!--================ End About Us Area =================-->
+
+    <!--================ Start Contacts Show Area =================-->
+    <section class="about_area my_section_gap">
+      <div class="container">
+          <div class="row justify-content-start align-items-center">
+              <!-- <div class="col-lg-5">
+                  <div class="about_img">
+                      <img class="" src="{% static 'images/contact1.jpg' %}" alt="">
+                  </div>
+              </div> -->
+
+              
+              <table id="datatable" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Subject</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+              
+          </div>
+      </div>
+  </section>
+  <!--================ End Contacts Show Area =================-->
+
+<script>
+  $(document).ready(function() {
+      $('#datatable').DataTable({
+          ajax: "{% url 'datatable' %}",
+          dataSrc: 'data',  // specify the property containing the data
+          columns: [
+              { data: 'full_name' },
+              { data: 'email' },
+              { data: 'subject' },
+              { data: 'message' },
+              { data: 'status' },
+              {
+                data: null,
+                render: function(data, type, row) {
+                    return '<div class="row"><div class="col-lg-5"><button class="approve_btn" onclick="checkContact(\'' + row.Id + '\')">Check</button></div><div class="col-lg-5"><button class="reject_btn" onclick="deleteContact(\'' + row.Id + '\')">Reject</button></div></div>';
+                }
+            },
+          ],
+      });
+  });
+
+  function checkContact(rowId) {
+    $.ajax({
+        type: 'POST',
+        url: '{% url "checkContact" %}',
+        data: {
+          id: rowId,
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+          alert(response.msg)
+          window.location.reload();
+          /*window.location.href = "{% url 'contact' %}";*/
+        }
+    });
+
+  }
+
+  function deleteContact(rowId) {
+    if (confirm('Are you sure you want to delete this contact?')) {
+      $.ajax({
+        type: 'POST',
+        url: '{% url "deleteContact" %}',
+        data: {
+          id: rowId,
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+          alert(response.msg)
+          window.location.reload();
+        }
+      });
+    } else {
+      // Do nothing!
+      console.log('Procced Denied');
+    }
+    /*
+        $.ajax({
+          url: '/delete/' + rowId,
+          method: 'POST',
+          data: {
+              'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+          success: function(response) {
+              if (response.success) {
+                  $('#object-' + pk).remove();
+              }
+          }
+        });
+    */
+  }
+</script>
 
 </body>
 
